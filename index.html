@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MemoClip</title>
+</head>
+<body>
+  <h1>MemoClip</h1>
+  <div id="clipboard-cards"></div>
+  <script src="dist/renderer.js"></script>
+  <style>
+    body {
+      background: #eafaf1;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #234d2c;
+      margin: 0;
+      padding: 0 0 40px 0;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 24px;
+      color: #2e7d32;
+    }
+    #clipboard-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 32px;
+    }
+    .card {
+      background: #c8e6c9;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+      padding: 20px 24px;
+      min-width: 260px;
+      max-width: 340px;
+      flex: 1 1 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .card h3 {
+      margin: 0 0 12px 0;
+      color: #388e3c;
+      font-size: 1.2em;
+    }
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+    .card li {
+      background: #f1f8e9;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      word-break: break-all;
+      color: #234d2c;
+      font-size: 1em;
+      box-shadow: 0 1px 2px rgba(46,125,50,0.04);
+    }
+  </style>
+</body>
+</html>

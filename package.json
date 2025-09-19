@@ -1,0 +1,14 @@
+{
+  "name": "memoclip",
+  "version": "0.1.0",
+  "main": "dist/main.js",
+  "description": "Desktop app to monitor clipboard and organize links.",
+  "scripts": {
+    "start": "electron .",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "typescript": "^5.0.0"
+  }
+}
