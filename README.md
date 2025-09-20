@@ -1,3 +1,5 @@
+[![CI](https://github.com/Aceee-dev/MemoClip/actions/workflows/ci.yml/badge.svg)](https://github.com/Aceee-dev/MemoClip/actions/workflows/ci.yml)
+[![Release Windows Build](https://github.com/Aceee-dev/MemoClip/actions/workflows/release.yml/badge.svg)](https://github.com/Aceee-dev/MemoClip/actions/workflows/release.yml)
 # MemoClip
 
 MemoClip is a desktop application built with Electron and TypeScript that monitors clipboard content, classifies it (using rule-based or machine learning models), and organizes it into categories such as links and text. Links are further sub-categorized (e.g., study, sports, news). The app runs in the background and provides a modern, green-themed UI for viewing your organized clipboard history.
