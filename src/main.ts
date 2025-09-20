@@ -1,8 +1,10 @@
-import { app, BrowserWindow, clipboard } from 'electron';
+import { app, BrowserWindow, clipboard, Tray, Menu } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
+let tray: Tray | null = null;
+let isQuiting = false;
 type ClipCategory = 'Links' | 'Text' | 'Others';
 type LinkSubCategory = 'Study' | 'Sports' | 'News' | 'OtherLink';
 interface CategorizedClip {
@@ -10,7 +12,7 @@ interface CategorizedClip {
   subCategory?: LinkSubCategory;
   content: string;
 }
-const clipboardHistory: CategorizedClip[] = [];
+let clipboardHistory: CategorizedClip[] = [];
 const dataFile = path.join(app.getPath('userData'), 'clipboard.json');
 
 function classifyLinkSubCategory(url: string): LinkSubCategory {
@@ -33,6 +35,33 @@ function saveClipboardHistory() {
   fs.writeFileSync(dataFile, JSON.stringify(clipboardHistory, null, 2));
 }
 
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    icon: path.resolve(process.cwd(), 'icon.png'),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+    },
+    autoHideMenuBar: true
+  });
+  mainWindow.setMenuBarVisibility(false);
+  mainWindow.loadFile('index.html');
+
+  mainWindow.on('minimize', (event: Electron.Event) => {
+    event.preventDefault();
+    mainWindow?.hide();
+  });
+
+  mainWindow.on('close', (event: Electron.Event) => {
+    if (!isQuiting) {
+      event.preventDefault();
+      mainWindow?.hide();
+    }
+  });
+}
+
 function monitorClipboard() {
   let lastText = clipboard.readText();
   setInterval(() => {
@@ -46,25 +75,46 @@ function monitorClipboard() {
   }, 1000);
 }
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-    },
-    autoHideMenuBar: true
-  });
-  mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadFile('index.html');
-}
-
 import { ipcMain } from 'electron';
 
+function restoreClipboardHistory() {
+  if (fs.existsSync(dataFile)) {
+    try {
+      const data = fs.readFileSync(dataFile, 'utf-8');
+      clipboardHistory = JSON.parse(data);
+    } catch (err) {
+      clipboardHistory = [];
+    }
+  }
+}
+
 app.on('ready', () => {
+  restoreClipboardHistory();
   createWindow();
   monitorClipboard();
+
+  // Tray icon setup
+  tray = new Tray(path.resolve(process.cwd(), 'icon.png'));
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show MemoClip',
+      click: function () {
+        mainWindow?.show();
+      }
+    },
+    {
+      label: 'Quit',
+      click: function () {
+        isQuiting = true;
+        app.quit();
+      }
+    }
+  ]);
+  tray.setToolTip('MemoClip is running');
+  tray.setContextMenu(contextMenu);
+  tray.on('click', () => {
+    mainWindow?.show();
+  });
 });
 
 ipcMain.handle('get-clipboard-history', async () => {
@@ -91,10 +141,9 @@ ipcMain.handle('get-clipboard-history', async () => {
   return grouped;
 });
 
+// Prevent app from quitting when all windows are closed
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  // Do nothing, keep app running in tray
 });
 
 app.on('activate', () => {
