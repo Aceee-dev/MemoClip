@@ -11,15 +11,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install dependencies
         run: npm ci
+
       - name: Build and package app
-        run: |
-          npm run release
+        run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
