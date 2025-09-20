@@ -44,7 +44,3 @@ MIT
 
 ## CI/CD
 This project uses GitHub Actions for CI/CD. Each push to the `main` branch will trigger build and test workflows.
-
----
-
-**Author:** anukul.chand

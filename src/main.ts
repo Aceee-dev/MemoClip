@@ -14,11 +14,15 @@ const persistenceService = new PersistenceService(dataFilePath);
 const classificationService = new ClassificationService();
 const clipboardManager = new ClipboardManager(classificationService, persistenceService);
 
+function getIconPath() {
+  return path.resolve(process.cwd(), 'icon.ico');
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    icon: path.resolve(process.cwd(), 'icon.png'),
+    icon: getIconPath(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -46,7 +50,7 @@ app.on('ready', () => {
   clipboardManager.startMonitoring();
 
   // Tray icon setup
-  tray = new Tray(path.resolve(process.cwd(), 'icon.png'));
+  tray = new Tray(getIconPath());
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show MemoClip',
