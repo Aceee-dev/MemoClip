@@ -5,10 +5,34 @@
   "description": "Desktop app to monitor clipboard and organize links.",
   "scripts": {
     "start": "electron .",
-    "build": "tsc"
+  "build": "tsc && npx copyfiles icon.ico dist/icon.ico",
+  "dist": "electron-builder --win --x64",
+  "copy_resources": "npx copyfiles dist/icon.ico dist/win-unpacked/icon.ico",
+  "release": "npm run build && npm run dist && npm run copy_resources"
   },
   "devDependencies": {
     "electron": "^29.0.0",
+    "electron-builder": "^26.0.12",
     "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.aceee.memoclip",
+    "productName": "MemoClip",
+    "copyright": "Copyright © 2025 Aceee-dev",
+    "files": [
+    "dist/**/*",
+    "index.html",
+    "icon.ico"
+    ],
+    "win": {
+    "icon": "icon.ico",
+    "target": "nsis",
+    "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
