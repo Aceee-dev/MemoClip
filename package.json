@@ -5,9 +5,9 @@
   "description": "Desktop app to monitor clipboard and organize links.",
   "scripts": {
     "start": "electron .",
-  "build": "tsc && npx copyfiles icon.ico dist/icon.ico",
+  "build": "tsc && npx copyfiles icon.ico dist/",
   "dist": "electron-builder --win --x64",
-  "copy_resources": "npx copyfiles dist/icon.ico dist/win-unpacked/icon.ico",
+  "copy_resources": "npx copyfiles -u 1 dist/icon.ico dist/win-unpacked/",
   "release": "npm run build && npm run dist && npm run copy_resources"
   },
   "devDependencies": {
