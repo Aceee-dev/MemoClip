@@ -29,7 +29,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/win-unpacked/*.exe
-            dist/win-unpacked/*.ico
+            dist/win-unpacked/*
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
