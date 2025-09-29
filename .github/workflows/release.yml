@@ -24,12 +24,14 @@ jobs:
         run: npm run release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      
+      - name: Archive win-unpacked
+        run: powershell Compress-Archive -Path dist/win-unpacked -DestinationPath dist/win-unpacked.zip
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/win-unpacked/*.exe
-            dist/win-unpacked/*.ico
+            dist/win-unpacked.zip
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
