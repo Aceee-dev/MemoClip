@@ -1,34 +1,39 @@
-import { clipboard } from 'electron';
-import { ClassificationService, ClassificationResult } from './ClassificationService';
+import { clipboard as electronClipboard } from 'electron';
+import clipboard from 'clipboard-event';
+import { ClassificationService } from './ClassificationService';
 import { PersistenceService } from './PersistenceService';
 
 export class ClipboardManager {
-  private lastText: string = '';
-  private intervalId: NodeJS.Timeout | null = null;
   private classificationService: ClassificationService;
   private persistenceService: PersistenceService;
+  private onUpdate: (clip: any) => void;
 
-  constructor(classificationService: ClassificationService, persistenceService: PersistenceService) {
+  constructor(
+    classificationService: ClassificationService,
+    persistenceService: PersistenceService,
+    onUpdate: (clip: any) => void
+  ) {
     this.classificationService = classificationService;
     this.persistenceService = persistenceService;
+    this.onUpdate = onUpdate;
+
+    clipboard.on('change', async () => {
+      const text = electronClipboard.readText();
+      if (text) {
+        const result = await this.classificationService.classify(text);
+        this.persistenceService.addClip(result);
+        if (this.onUpdate) {
+          this.onUpdate(result);
+        }
+      }
+    });
   }
 
   public startMonitoring() {
-    this.lastText = clipboard.readText();
-    this.intervalId = setInterval(() => {
-      const text = clipboard.readText();
-      if (text && text !== this.lastText) {
-        const result = this.classificationService.classify(text);
-        this.persistenceService.addClip(result);
-        this.lastText = text;
-      }
-    }, 500);
+    clipboard.startListening();
   }
 
   public stopMonitoring() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
+    clipboard.stopListening();
   }
 }

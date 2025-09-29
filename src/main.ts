@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu } from 'electron';
+import { app, BrowserWindow, Tray, Menu, shell } from 'electron';
 import * as path from 'path';
 import { ClipboardManager } from './core/ClipboardManager';
 import { ClassificationService } from './core/ClassificationService';
@@ -12,7 +12,11 @@ let isQuiting = false;
 const dataFilePath = path.join(app.getPath('userData'), 'clipboard.json');
 const persistenceService = new PersistenceService(dataFilePath);
 const classificationService = new ClassificationService();
-const clipboardManager = new ClipboardManager(classificationService, persistenceService);
+const clipboardManager = new ClipboardManager(classificationService, persistenceService, (clip) => {
+  if (mainWindow) {
+    mainWindow.webContents.send('clipboard-updated', clip);
+  }
+});
 
 function getIconPath() {
   return path.resolve(process.cwd(), 'icon.ico');
@@ -43,6 +47,11 @@ function createWindow() {
       mainWindow?.hide();
     }
   });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 }
 
 app.on('ready', () => {
@@ -71,6 +80,10 @@ app.on('ready', () => {
   tray.on('click', () => {
     mainWindow?.show();
   });
+});
+
+app.on('before-quit', () => {
+  clipboardManager.stopMonitoring();
 });
 
 ipcMain.handle('get-clipboard-history', async () => {

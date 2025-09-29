@@ -6,63 +6,87 @@ window.addEventListener('DOMContentLoaded', async () => {
     { key: 'OtherLink', label: 'Other Links' }
   ];
 
-  const container = document.createElement('div');
-  container.id = 'clipboard-cards';
-  document.body.appendChild(container);
+  const container = document.getElementById('clipboard-cards');
+  const showLinksCheckbox = document.getElementById('show-links') as HTMLInputElement;
+  const showTextCheckbox = document.getElementById('show-text') as HTMLInputElement;
 
   async function updateHistory() {
     // @ts-ignore
     const history = await window.electronAPI.getClipboardHistory();
+    if (!container) return;
     container.innerHTML = '';
-    // Links card with subcategories
-    const linksCard = document.createElement('div');
-    linksCard.className = 'card';
-    const linksHeading = document.createElement('h3');
-    linksHeading.textContent = 'Links';
-    linksCard.appendChild(linksHeading);
-    linkSubCategories.forEach(sub => {
-      const subHeading = document.createElement('h4');
-      subHeading.textContent = sub.label;
-      linksCard.appendChild(subHeading);
-      const list = document.createElement('ul');
-      (history.Links[sub.key] || []).forEach((item: string) => {
-        const li = document.createElement('li');
-        // Make links clickable
-        const linkMatch = item.match(/https?:\/\/.+/);
-        if (linkMatch) {
+
+    const showLinks = showLinksCheckbox.checked;
+    const showText = showTextCheckbox.checked;
+
+    // Links card
+    if (showLinks) {
+      const linksCard = document.createElement('details');
+      linksCard.className = 'card';
+      linksCard.open = true;
+      const linksSummary = document.createElement('summary');
+      linksSummary.textContent = 'Links';
+      linksCard.appendChild(linksSummary);
+      const linksContent = document.createElement('div');
+      linksContent.className = 'card-content';
+      
+      linkSubCategories.forEach(sub => {
+        const subCategoryDetails = document.createElement('details');
+        subCategoryDetails.className = 'sub-card';
+        
+        const subCategorySummary = document.createElement('summary');
+        subCategorySummary.textContent = sub.label;
+        subCategoryDetails.appendChild(subCategorySummary);
+
+        const list = document.createElement('ul');
+        (history.Links[sub.key] || []).forEach((item: string) => {
+          const li = document.createElement('li');
           const a = document.createElement('a');
           a.href = item;
           a.textContent = item;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
           a.style.textDecoration = 'underline';
-          a.style.color = '#388e3c';
+          a.style.color = '#1976d2';
           li.appendChild(a);
-        } else {
-          li.textContent = item;
-        }
-        list.appendChild(li);
+          list.appendChild(li);
+        });
+        
+        subCategoryDetails.appendChild(list);
+        linksContent.appendChild(subCategoryDetails);
       });
-      linksCard.appendChild(list);
-    });
-    container.appendChild(linksCard);
+      linksCard.appendChild(linksContent);
+      container.appendChild(linksCard);
+    }
 
-    // Text card only
-    const textCard = document.createElement('div');
-    textCard.className = 'card';
-    const textHeading = document.createElement('h3');
-    textHeading.textContent = 'Text';
-    textCard.appendChild(textHeading);
-    const textList = document.createElement('ul');
-    (history.Text || []).forEach((item: string) => {
-      const li = document.createElement('li');
-      li.textContent = item;
-      textList.appendChild(li);
-    });
-    textCard.appendChild(textList);
-    container.appendChild(textCard);
+    // Text card
+    if (showText) {
+      const textCard = document.createElement('details');
+      textCard.className = 'card';
+      textCard.open = true;
+      const textSummary = document.createElement('summary');
+      textSummary.textContent = 'Text';
+      textCard.appendChild(textSummary);
+      const textContent = document.createElement('div');
+      textContent.className = 'card-content';
+      const textList = document.createElement('ul');
+      (history.Text || []).forEach((item: string) => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        textList.appendChild(li);
+      });
+      textContent.appendChild(textList);
+      textCard.appendChild(textContent);
+      container.appendChild(textCard);
+    }
   }
 
+  showLinksCheckbox.addEventListener('change', updateHistory);
+  showTextCheckbox.addEventListener('change', updateHistory);
+
   updateHistory();
-  setInterval(updateHistory, 2000);
+  // @ts-ignore
+  window.electronAPI.onClipboardUpdate(() => {
+    updateHistory();
+  });
 });

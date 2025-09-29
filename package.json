@@ -5,10 +5,10 @@
   "description": "Desktop app to monitor clipboard and organize links.",
   "scripts": {
     "start": "electron .",
-  "build": "tsc && npx copyfiles icon.ico dist/icon.ico",
-  "dist": "electron-builder --win --x64",
-  "copy_resources": "npx copyfiles dist/icon.ico dist/win-unpacked/icon.ico",
-  "release": "npm run build && npm run dist && npm run copy_resources"
+    "build": "tsc && npx copyfiles icon.ico dist/icon.ico",
+    "dist": "electron-builder --win --x64",
+    "copy_resources": "npx copyfiles dist/icon.ico dist/win-unpacked/icon.ico",
+    "release": "npm run build && npm run dist && npm run copy_resources"
   },
   "devDependencies": {
     "electron": "^29.0.0",
@@ -20,19 +20,22 @@
     "productName": "MemoClip",
     "copyright": "Copyright © 2025 Aceee-dev",
     "files": [
-    "dist/**/*",
-    "index.html",
-    "icon.ico"
+      "dist/**/*",
+      "index.html",
+      "icon.ico"
     ],
     "win": {
-    "icon": "icon.ico",
-    "target": "nsis",
-    "forceCodeSigning": false
+      "icon": "icon.ico",
+      "target": "nsis",
+      "forceCodeSigning": false
     },
     "nsis": {
       "oneClick": false,
       "perMachine": true,
       "allowToChangeInstallationDirectory": true
     }
+  },
+  "dependencies": {
+    "clipboard-event": "^1.6.0"
   }
 }
